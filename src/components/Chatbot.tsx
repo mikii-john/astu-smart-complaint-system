@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { MessageCircle, X, Send, Loader2 } from "lucide-react";
-import { GoogleGenAI } from "@google/genai";
+import { supabase } from "@/lib/supabaseClient";
 import { motion, AnimatePresence } from "motion/react";
 import ReactMarkdown from "react-markdown";
 
@@ -33,40 +33,21 @@ const Chatbot: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        throw new Error("API Key not found");
-      }
-
-      const ai = new GoogleGenAI({ apiKey });
-      
-      // Construct the full conversation history for the model
-      const contents = [
-        ...messages.map(m => ({
-          role: m.role,
-          parts: [{ text: m.text }],
-        })),
-        { role: "user", parts: [{ text: userMessage }] }
-      ];
-
-      const result = await ai.models.generateContent({
-        model: "gemini-2.5-flash-lite-latest",
-        config: {
-          systemInstruction: "You are a helpful assistant for ASTU (Adama Science and Technology University) students. You help them navigate the complaint system, answer general campus questions, and provide support. Be concise, friendly, and professional. If a student has a specific complaint (like broken equipment), guide them to use the 'New Complaint' form in the dashboard.",
-        },
-        contents: contents,
+      const { data, error } = await supabase.functions.invoke('chat', {
+        body: { messages: [...messages, { role: "user", text: userMessage }] },
       });
 
-      const response = result.text;
+      if (error) throw error;
 
-      if (response) {
-        setMessages((prev) => [...prev, { role: "model", text: response }]);
+      if (data && data.response) {
+        setMessages((prev) => [...prev, { role: "model", text: data.response }]);
       }
     } catch (error) {
       console.error("Chat error:", error);
+      // Fallback for demo if function is not deployed
       setMessages((prev) => [
         ...prev,
-        { role: "model", text: "Sorry, I'm having trouble connecting right now. Please try again later." },
+        { role: "model", text: "I'm currently in 'local mode'. Please ensure the Supabase Edge Function is deployed to use the full AI features." },
       ]);
     } finally {
       setIsLoading(false);

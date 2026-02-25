@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import { useAuth } from "./AuthContext";
 
 export type TicketStatus = "Open" | "In Progress" | "Resolved";
 export type Category = "Dormitory" | "Lab Equipment" | "Internet" | "Classroom" | "Other";
@@ -11,114 +13,139 @@ export interface Complaint {
   status: TicketStatus;
   dateSubmitted: string;
   studentId: string;
-  studentName: string;
+  studentName?: string;
   assignedTo?: string; // Department
   remarks?: string;
-  attachment?: string; // URL or placeholder
+  attachment?: string; // URL
 }
 
 interface ComplaintContextType {
   complaints: Complaint[];
-  addComplaint: (complaint: Omit<Complaint, "id" | "dateSubmitted" | "status" | "studentName">) => void;
-  updateStatus: (id: string, status: TicketStatus, remarks?: string) => void;
-  getComplaintsByStudent: (studentId: string) => Complaint[];
-  getComplaintsByDepartment: (department?: string) => Complaint[]; // For staff
-  getAllComplaints: () => Complaint[]; // For admin
+  loading: boolean;
+  addComplaint: (complaint: Omit<Complaint, "id" | "dateSubmitted" | "status" | "studentName">, file?: File) => Promise<void>;
+  updateStatus: (id: string, status: TicketStatus, remarks?: string) => Promise<void>;
+  refreshComplaints: () => Promise<void>;
 }
 
 const ComplaintContext = createContext<ComplaintContextType | undefined>(undefined);
 
-// Mock Data
-const initialComplaints: Complaint[] = [
-  {
-    id: "1",
-    title: "Broken Projector in Room 301",
-    description: "The projector displays a blue screen and flickers.",
-    category: "Classroom",
-    status: "Open",
-    dateSubmitted: new Date(Date.now() - 86400000 * 2).toISOString(), // 2 days ago
-    studentId: "s1",
-    studentName: "Alex Student",
-    assignedTo: "IT Support",
-  },
-  {
-    id: "2",
-    title: "No Internet in Dorm Block B",
-    description: "Wifi signal is very weak on the 2nd floor.",
-    category: "Internet",
-    status: "In Progress",
-    dateSubmitted: new Date(Date.now() - 86400000 * 5).toISOString(), // 5 days ago
-    studentId: "s1",
-    studentName: "Alex Student",
-    assignedTo: "Network Admin",
-    remarks: "Technician dispatched.",
-  },
-  {
-    id: "3",
-    title: "Leaking Tap in Lab 2",
-    description: "Water is dripping constantly.",
-    category: "Lab Equipment",
-    status: "Resolved",
-    dateSubmitted: new Date(Date.now() - 86400000 * 10).toISOString(), // 10 days ago
-    studentId: "s2",
-    studentName: "John Doe",
-    assignedTo: "Maintenance",
-    remarks: "Fixed on Tuesday.",
-  },
-];
-
 export const ComplaintProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [complaints, setComplaints] = useState<Complaint[]>(initialComplaints);
+  const [complaints, setComplaints] = useState<Complaint[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
-  // Load from local storage if available (simple persistence)
-  useEffect(() => {
-    const stored = localStorage.getItem("astu_complaints");
-    if (stored) {
-      setComplaints(JSON.parse(stored));
+  const refreshComplaints = async () => {
+    if (!user) {
+      setComplaints([]);
+      setLoading(false);
+      return;
     }
-  }, []);
+
+    setLoading(true);
+    try {
+      let query = supabase
+        .from("complaints")
+        .select(`
+          *,
+          profiles:student_id (full_name)
+        `)
+        .order("created_at", { ascending: false });
+
+      // RLS handles the filtering, but we can be explicit if we want
+      // For student, they only see their own. For staff/admin, they see all (based on RLS).
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+
+      if (data) {
+        setComplaints(data.map((item: any) => ({
+          id: item.id,
+          title: item.title,
+          description: item.description,
+          category: item.category as Category,
+          status: item.status as TicketStatus,
+          dateSubmitted: item.created_at,
+          studentId: item.student_id,
+          studentName: item.profiles?.full_name,
+          assignedTo: item.assigned_to,
+          remarks: item.remarks,
+          attachment: item.attachment_path ? `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/complaint-attachments/${item.attachment_path}` : undefined,
+        })));
+      }
+    } catch (error) {
+      console.error("Error fetching complaints:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    localStorage.setItem("astu_complaints", JSON.stringify(complaints));
-  }, [complaints]);
+    refreshComplaints();
+  }, [user]);
 
-  const addComplaint = (data: Omit<Complaint, "id" | "dateSubmitted" | "status" | "studentName">) => {
-    const newComplaint: Complaint = {
-      ...data,
-      id: Math.random().toString(36).substr(2, 9),
-      dateSubmitted: new Date().toISOString(),
-      status: "Open",
-      studentName: "Alex Student", // Mock name
-    };
-    setComplaints((prev) => [newComplaint, ...prev]);
+  const addComplaint = async (data: Omit<Complaint, "id" | "dateSubmitted" | "status" | "studentName">, file?: File) => {
+    if (!user) return;
+
+    try {
+      let attachmentPath = null;
+
+      if (file) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${user.id}/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('complaint-attachments')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+        attachmentPath = filePath;
+      }
+
+      const { error } = await supabase
+        .from("complaints")
+        .insert({
+          title: data.title,
+          description: data.description,
+          category: data.category,
+          student_id: user.id,
+          attachment_path: attachmentPath,
+        });
+
+      if (error) throw error;
+      
+      await refreshComplaints();
+    } catch (error) {
+      console.error("Error adding complaint:", error);
+      throw error;
+    }
   };
 
-  const updateStatus = (id: string, status: TicketStatus, remarks?: string) => {
-    setComplaints((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, status, remarks: remarks || c.remarks } : c))
-    );
-  };
+  const updateStatus = async (id: string, status: TicketStatus, remarks?: string) => {
+    try {
+      const { error } = await supabase
+        .from("complaints")
+        .update({ status, remarks })
+        .eq("id", id);
 
-  const getComplaintsByStudent = (studentId: string) => {
-    return complaints.filter((c) => c.studentId === studentId);
+      if (error) throw error;
+      
+      await refreshComplaints();
+    } catch (error) {
+      console.error("Error updating status:", error);
+      throw error;
+    }
   };
-
-  const getComplaintsByDepartment = (department?: string) => {
-    // For demo, return all or filter if department logic was stricter
-    return complaints; 
-  };
-
-  const getAllComplaints = () => complaints;
 
   return (
     <ComplaintContext.Provider
       value={{
         complaints,
+        loading,
         addComplaint,
         updateStatus,
-        getComplaintsByStudent,
-        getComplaintsByDepartment,
-        getAllComplaints,
+        refreshComplaints,
       }}
     >
       {children}

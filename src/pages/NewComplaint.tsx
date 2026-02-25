@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useComplaints, Category } from "@/context/ComplaintContext";
+import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -9,6 +10,7 @@ import { Upload, X } from "lucide-react";
 import { motion } from "motion/react";
 
 const NewComplaint: React.FC = () => {
+  const { user } = useAuth();
   const { addComplaint } = useComplaints();
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
@@ -17,22 +19,25 @@ const NewComplaint: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate API delay
-    setTimeout(() => {
-      addComplaint({
+    try {
+      await addComplaint({
         title,
         description,
         category,
-        studentId: "s1", // Mock ID
-        attachment: file ? URL.createObjectURL(file) : undefined,
-      });
+        studentId: user?.id || "",
+      }, file || undefined);
+      
       setIsSubmitting(false);
       navigate("/student");
-    }, 1000);
+    } catch (error) {
+      console.error("Submission failed:", error);
+      setIsSubmitting(false);
+      // TODO: Show error toast
+    }
   };
 
   return (

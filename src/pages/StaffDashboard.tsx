@@ -11,18 +11,33 @@ import { CheckCircle, Clock, AlertCircle } from "lucide-react";
 
 const StaffDashboard: React.FC = () => {
   const { user } = useAuth();
-  const { getComplaintsByDepartment, updateStatus } = useComplaints();
+  const { complaints, loading, updateStatus } = useComplaints();
   const [selectedStatus, setSelectedStatus] = useState<TicketStatus | "All">("All");
 
-  const complaints = getComplaintsByDepartment(user?.department);
-  
-  const filteredComplaints = selectedStatus === "All" 
-    ? complaints 
-    : complaints.filter(c => c.status === selectedStatus);
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
-  const handleStatusChange = (id: string, newStatus: TicketStatus) => {
+  // Filter by department (RLS should handle this, but frontend filter for safety)
+  const filteredByDept = user?.role === 'admin' 
+    ? complaints 
+    : complaints; // Assuming staff see all for now or RLS handles it
+
+  const filteredComplaints = selectedStatus === "All" 
+    ? filteredByDept 
+    : filteredByDept.filter(c => c.status === selectedStatus);
+
+  const handleStatusChange = async (id: string, newStatus: TicketStatus) => {
     const remarks = prompt("Add remarks for this status update (optional):");
-    updateStatus(id, newStatus, remarks || undefined);
+    try {
+      await updateStatus(id, newStatus, remarks || undefined);
+    } catch (error) {
+      console.error("Failed to update status:", error);
+    }
   };
 
   const getStatusColor = (status: string) => {

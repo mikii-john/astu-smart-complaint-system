@@ -1,13 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/Card";
 import { useNavigate } from "react-router-dom";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
+import { AlertCircle, Loader2 } from "lucide-react";
 
 const Login: React.FC = () => {
-  const { login, user } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [role, setRole] = useState<"student" | "staff" | "admin">("student");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   React.useEffect(() => {
     if (user) {
@@ -17,9 +26,38 @@ const Login: React.FC = () => {
     }
   }, [user, navigate]);
 
-  const handleLogin = (role: "student" | "staff" | "admin") => {
-    login(role);
-    // Navigation happens in useEffect
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      if (isLogin) {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: fullName,
+              role: role,
+            },
+            emailRedirectTo: `${window.location.origin}/`,
+          },
+        });
+        if (error) throw error;
+        setError("Check your email for the confirmation link!");
+      }
+    } catch (err: any) {
+      setError(err.message || "An error occurred");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -28,45 +66,107 @@ const Login: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
+        className="w-full max-w-md"
       >
-        <Card className="w-full max-w-md shadow-xl border-0">
-          <CardHeader className="text-center space-y-2">
+        <Card className="shadow-xl border-0 overflow-hidden">
+          <CardHeader className="text-center space-y-2 pb-2">
             <div className="mx-auto w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xl mb-2">
               AS
             </div>
             <CardTitle className="text-2xl font-bold text-slate-900">ASTU Smart Complaint</CardTitle>
             <CardDescription>
-              Select your role to sign in to the portal
+              {isLogin ? "Sign in to your account" : "Create a new account"}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <Button 
-              className="w-full h-12 text-lg bg-blue-600 hover:bg-blue-700" 
-              onClick={() => handleLogin("student")}
-            >
-              Student Login
-            </Button>
-            <div className="grid grid-cols-2 gap-4">
+          
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <AnimatePresence mode="wait">
+                {!isLogin && (
+                  <motion.div
+                    key="signup-fields"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="space-y-4"
+                  >
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-700">Full Name</label>
+                      <input 
+                        type="text" 
+                        required 
+                        className="w-full p-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-700">Role</label>
+                      <select 
+                        className="w-full p-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value={role}
+                        onChange={(e) => setRole(e.target.value as any)}
+                      >
+                        <option value="student">Student</option>
+                        <option value="staff">Staff</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700">Email</label>
+                <input 
+                  type="email" 
+                  required 
+                  className="w-full p-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700">Password</label>
+                <input 
+                  type="password" 
+                  required 
+                  className="w-full p-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+
+              {error && (
+                <div className={`p-3 rounded-lg flex items-center gap-2 text-sm ${error.includes('Check') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                  <AlertCircle className="h-4 w-4" />
+                  {error}
+                </div>
+              )}
+
               <Button 
-                variant="outline" 
-                className="h-12 border-slate-200 hover:bg-slate-50"
-                onClick={() => handleLogin("staff")}
+                type="submit" 
+                className="w-full h-11 bg-blue-600 hover:bg-blue-700 transition-colors" 
+                disabled={loading}
               >
-                Staff Access
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : (isLogin ? "Sign In" : "Sign Up")}
               </Button>
-              <Button 
-                variant="outline" 
-                className="h-12 border-slate-200 hover:bg-slate-50"
-                onClick={() => handleLogin("admin")}
-              >
-                Admin Portal
-              </Button>
-            </div>
-            <div className="text-center text-xs text-slate-400 mt-4">
-              Secure System • ASTU IT Department
-            </div>
+            </form>
           </CardContent>
+
+          <CardFooter className="bg-slate-50 border-t border-slate-100 p-4 flex justify-center text-sm">
+            <button 
+              className="text-blue-600 hover:underline font-medium"
+              onClick={() => setIsLogin(!isLogin)}
+            >
+              {isLogin ? "Don't have an account? Sign Up" : "Already have an account? Sign In"}
+            </button>
+          </CardFooter>
         </Card>
+        <div className="text-center text-xs text-slate-400 mt-6 uppercase tracking-widest font-medium">
+          ASTU IT Department • Secured by Supabase
+        </div>
       </motion.div>
     </div>
   );

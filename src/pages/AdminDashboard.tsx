@@ -5,8 +5,15 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { Users, FileText, CheckCircle, AlertTriangle } from "lucide-react";
 
 const AdminDashboard: React.FC = () => {
-  const { getAllComplaints } = useComplaints();
-  const complaints = getAllComplaints();
+  const { complaints, loading } = useComplaints();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   const totalComplaints = complaints.length;
   const resolvedComplaints = complaints.filter(c => c.status === "Resolved").length;

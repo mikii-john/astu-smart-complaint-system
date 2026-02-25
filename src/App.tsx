@@ -10,7 +10,11 @@ import StaffDashboard from "@/pages/StaffDashboard";
 import AdminDashboard from "@/pages/AdminDashboard";
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRoles: string[] }> = ({ children, allowedRoles }) => {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return <div className="flex h-screen items-center justify-center">Loading...</div>; // TODO: Better spinner
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
