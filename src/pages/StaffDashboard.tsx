@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
 import { formatDistanceToNow } from "date-fns";
 import { motion } from "motion/react";
-import { CheckCircle, Clock, AlertCircle } from "lucide-react";
+import { CheckCircle, Clock, AlertCircle, Paperclip } from "lucide-react";
 
 const StaffDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -144,6 +144,20 @@ const StaffDashboard: React.FC = () => {
                           <div className="flex items-center gap-1">
                             <span className="font-medium">Date:</span> {formatDistanceToNow(new Date(complaint.dateSubmitted))} ago
                           </div>
+                          {complaint.attachment && (
+                            <div className="flex items-center gap-1">
+                              <span className="font-medium">Attachment:</span>
+                              <a 
+                                href={complaint.attachment} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-blue-600 hover:underline"
+                              >
+                                <Paperclip className="h-3 w-3" />
+                                View file
+                              </a>
+                            </div>
+                          )}
                         </div>
                         
                         {complaint.remarks && (

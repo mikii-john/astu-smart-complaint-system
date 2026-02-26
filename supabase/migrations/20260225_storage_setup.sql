@@ -1,7 +1,7 @@
 -- Create the storage bucket for complaint attachments
 INSERT INTO storage.buckets (id, name, public)
-VALUES ('complaint-attachments', 'complaint-attachments', false)
-ON CONFLICT (id) DO NOTHING;
+VALUES ('complaint-attachments', 'complaint-attachments', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
 
 -- Set up RLS for the bucket
 -- Allow students to upload files to their own folder

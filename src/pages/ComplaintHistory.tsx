@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { formatDistanceToNow } from "date-fns";
 import { motion } from "motion/react";
+import { Paperclip } from "lucide-react";
 
 const ComplaintHistory: React.FC = () => {
   const { complaints, loading } = useComplaints();
@@ -62,6 +63,17 @@ const ComplaintHistory: React.FC = () => {
                           <span className="bg-slate-100 px-2 py-0.5 rounded text-slate-600">{complaint.category}</span>
                           {complaint.assignedTo && (
                             <span>Assigned to: {complaint.assignedTo}</span>
+                          )}
+                          {complaint.attachment && (
+                            <a 
+                              href={complaint.attachment} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-blue-600 hover:underline"
+                            >
+                              <Paperclip className="h-3 w-3" />
+                              Attachment
+                            </a>
                           )}
                         </div>
                       </div>

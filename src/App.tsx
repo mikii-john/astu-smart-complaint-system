@@ -10,7 +10,10 @@ import NewComplaint from "@/pages/NewComplaint";
 import StaffDashboard from "@/pages/StaffDashboard";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminUsers from "@/pages/AdminUsers";
+import AdminSettings from "@/pages/AdminSettings";
 import ComplaintHistory from "@/pages/ComplaintHistory";
+import StaffReports from "@/pages/StaffReports";
+
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRoles: string[] }> = ({ children, allowedRoles }) => {
   const { user, isAuthenticated, loading } = useAuth();
@@ -63,8 +66,16 @@ const AppRoutes: React.FC = () => {
       <Route
         path="/staff"
         element={
-          <ProtectedRoute allowedRoles={["staff"]}>
+          <ProtectedRoute allowedRoles={["staff", "admin"]}>
             <StaffDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/staff/reports"
+        element={
+          <ProtectedRoute allowedRoles={["staff", "admin"]}>
+            <StaffReports />
           </ProtectedRoute>
         }
       />
@@ -82,6 +93,14 @@ const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute allowedRoles={["admin"]}>
             <AdminUsers />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/settings"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <AdminSettings />
           </ProtectedRoute>
         }
       />

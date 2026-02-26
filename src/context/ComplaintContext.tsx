@@ -70,7 +70,7 @@ export const ComplaintProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           studentName: item.profiles?.full_name,
           assignedTo: item.assigned_to,
           remarks: item.remarks,
-          attachment: item.attachment_path ? `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/complaint-attachments/${item.attachment_path}` : undefined,
+          attachment: item.attachment_path ? supabase.storage.from('complaint-attachments').getPublicUrl(item.attachment_path).data.publicUrl : undefined,
         })));
       }
     } catch (error) {

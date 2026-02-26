@@ -44,6 +44,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const adminLinks = [
     { href: "/admin", label: "Overview", icon: BarChart3 },
+    { href: "/staff", label: "Assigned Tickets", icon: LayoutDashboard },
+    { href: "/staff/reports", label: "Reports", icon: FileText },
     { href: "/admin/users", label: "Users", icon: User },
     { href: "/admin/settings", label: "Settings", icon: Settings },
   ];

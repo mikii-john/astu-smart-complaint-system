@@ -1,11 +1,31 @@
 import React from "react";
 import { useComplaints } from "@/context/ComplaintContext";
+import { supabase } from "@/lib/supabaseClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { Users, FileText, CheckCircle, AlertTriangle } from "lucide-react";
 
 const AdminDashboard: React.FC = () => {
   const { complaints, loading } = useComplaints();
+
+  const [userCount, setUserCount] = React.useState<number>(0);
+
+  React.useEffect(() => {
+    const fetchUserCount = async () => {
+      try {
+        const { count, error } = await supabase
+          .from("profiles")
+          .select("*", { count: "exact", head: true });
+
+        if (error) throw error;
+        setUserCount(count || 0);
+      } catch (err) {
+        console.error("Error fetching user count:", err);
+      }
+    };
+
+    fetchUserCount();
+  }, []);
 
   if (loading) {
     return (
@@ -83,8 +103,7 @@ const AdminDashboard: React.FC = () => {
             <Users className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,240</div>
-            <p className="text-xs text-slate-500">+12% from last month</p>
+            <div className="text-2xl font-bold">{userCount}</div>
           </CardContent>
         </Card>
       </div>
