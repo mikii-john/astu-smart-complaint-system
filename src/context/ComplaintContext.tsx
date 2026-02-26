@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { useAuth } from "./AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 
 export type TicketStatus = "Open" | "In Progress" | "Resolved";
 export type Category = "Dormitory" | "Lab Equipment" | "Internet" | "Classroom" | "Other";

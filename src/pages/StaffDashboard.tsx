@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useComplaints, TicketStatus } from "@/context/ComplaintContext";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";

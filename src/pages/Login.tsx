@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/Card";
 import { useNavigate } from "react-router-dom";
@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { AlertCircle, Loader2 } from "lucide-react";
 
 const Login: React.FC = () => {
-  const { user } = useAuth();
+  const { user, signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
@@ -20,6 +20,7 @@ const Login: React.FC = () => {
 
   React.useEffect(() => {
     if (user) {
+      console.log(`[Login] User found (${user.role}), navigating...`);
       if (user.role === "student") navigate("/student");
       else if (user.role === "staff") navigate("/staff");
       else if (user.role === "admin") navigate("/admin");
@@ -31,15 +32,20 @@ const Login: React.FC = () => {
     setLoading(true);
     setError(null);
 
+    // 15s timeout to prevent infinite loading
+    const loginTimeout = setTimeout(() => {
+      setLoading(false);
+      setError("Sign-in process is taking longer than expected. Please check your internet or try again.");
+      console.warn("[Auth] Sign-in safety timeout reached in Login.tsx");
+    }, 15000);
+
     try {
+      console.log(`[Auth] Attempting ${isLogin ? 'Sign-in' : 'Sign-up'} for ${email}...`);
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (error) throw error;
+        await signIn({ email, password });
+        console.log("[Auth] Sign-in context method completed");
       } else {
-        const { error } = await supabase.auth.signUp({
+        await signUp({
           email,
           password,
           options: {
@@ -50,12 +56,14 @@ const Login: React.FC = () => {
             emailRedirectTo: `${window.location.origin}/`,
           },
         });
-        if (error) throw error;
+        console.log("[Auth] Sign-up context method completed");
         setError("Check your email for the confirmation link!");
       }
     } catch (err: any) {
+      console.error("[Auth] Error:", err.message);
       setError(err.message || "An error occurred");
     } finally {
+      clearTimeout(loginTimeout);
       setLoading(false);
     }
   };
