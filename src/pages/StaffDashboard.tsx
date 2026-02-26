@@ -53,11 +53,11 @@ const StaffDashboard: React.FC = () => {
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight text-slate-900">Staff Dashboard</h2>
-          <p className="text-slate-500">Department: {user?.department || "General"}</p>
+          <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Staff Dashboard</h2>
+          <p className="text-slate-500 dark:text-slate-400">Department: {user?.department || "General"}</p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-slate-700">Filter by:</span>
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Filter by:</span>
           <Select 
             value={selectedStatus} 
             onChange={(e) => setSelectedStatus(e.target.value as TicketStatus | "All")}
@@ -72,35 +72,35 @@ const StaffDashboard: React.FC = () => {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="bg-red-50 border-red-100">
+        <Card className="bg-red-50 dark:bg-red-950/30 border-red-100 dark:border-red-900/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-red-900">Pending Review</CardTitle>
-            <AlertCircle className="h-4 w-4 text-red-600" />
+            <CardTitle className="text-sm font-medium text-red-900 dark:text-red-400">Pending Review</CardTitle>
+            <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-700">
+            <div className="text-2xl font-bold text-red-700 dark:text-red-400">
               {complaints.filter(c => c.status === "Open").length}
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-amber-50 border-amber-100">
+        <Card className="bg-amber-50 dark:bg-amber-950/30 border-amber-100 dark:border-amber-900/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-amber-900">In Progress</CardTitle>
-            <Clock className="h-4 w-4 text-amber-600" />
+            <CardTitle className="text-sm font-medium text-amber-900 dark:text-amber-400">In Progress</CardTitle>
+            <Clock className="h-4 w-4 text-amber-600 dark:text-amber-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-amber-700">
+            <div className="text-2xl font-bold text-amber-700 dark:text-amber-400">
               {complaints.filter(c => c.status === "In Progress").length}
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-emerald-50 border-emerald-100">
+        <Card className="bg-emerald-50 dark:bg-emerald-950/30 border-emerald-100 dark:border-emerald-900/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-emerald-900">Completed</CardTitle>
-            <CheckCircle className="h-4 w-4 text-emerald-600" />
+            <CardTitle className="text-sm font-medium text-emerald-900 dark:text-emerald-400">Completed</CardTitle>
+            <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-emerald-700">
+            <div className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">
               {complaints.filter(c => c.status === "Resolved").length}
             </div>
           </CardContent>
@@ -108,10 +108,10 @@ const StaffDashboard: React.FC = () => {
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-xl font-semibold text-slate-900">Assigned Tickets</h3>
+        <h3 className="text-xl font-semibold text-slate-900 dark:text-white">Assigned Tickets</h3>
         <div className="space-y-4">
           {filteredComplaints.length === 0 ? (
-            <div className="text-center py-12 text-slate-500 bg-white rounded-xl border border-slate-200 border-dashed">
+            <div className="text-center py-12 text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 border-dashed">
               No tickets found matching the filter.
             </div>
           ) : (
@@ -129,12 +129,12 @@ const StaffDashboard: React.FC = () => {
                       <div className="space-y-2 flex-1">
                         <div className="flex items-center gap-3">
                           <Badge variant={getStatusColor(complaint.status)}>{complaint.status}</Badge>
-                          <span className="text-xs text-slate-400 font-mono">#{complaint.id}</span>
+                          <span className="text-xs text-slate-400 dark:text-slate-500 font-mono">#{complaint.id}</span>
                         </div>
-                        <h4 className="font-semibold text-lg text-slate-900">{complaint.title}</h4>
-                        <p className="text-slate-600">{complaint.description}</p>
+                        <h4 className="font-semibold text-lg text-slate-900 dark:text-white">{complaint.title}</h4>
+                        <p className="text-slate-600 dark:text-slate-400">{complaint.description}</p>
                         
-                        <div className="flex flex-wrap gap-4 text-xs text-slate-500 mt-4 pt-4 border-t border-slate-100">
+                        <div className="flex flex-wrap gap-4 text-xs text-slate-500 dark:text-slate-400 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                           <div className="flex items-center gap-1">
                             <span className="font-medium">Category:</span> {complaint.category}
                           </div>
@@ -161,14 +161,14 @@ const StaffDashboard: React.FC = () => {
                         </div>
                         
                         {complaint.remarks && (
-                          <div className="mt-3 bg-slate-50 p-3 rounded-md text-sm border border-slate-100">
-                            <span className="font-medium text-slate-700">Latest Remarks:</span> {complaint.remarks}
+                          <div className="mt-3 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-md text-sm border border-slate-100 dark:border-slate-800">
+                            <span className="font-medium text-slate-700 dark:text-slate-300">Latest Remarks:</span> {complaint.remarks}
                           </div>
                         )}
                       </div>
 
-                      <div className="flex flex-col gap-2 min-w-[200px] border-l border-slate-100 pl-6 justify-center">
-                        <span className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">Update Status</span>
+                      <div className="flex flex-col gap-2 min-w-[200px] border-l border-slate-100 dark:border-slate-800 pl-6 justify-center">
+                        <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Update Status</span>
                         <div className="flex flex-col gap-2">
                           <Button 
                             size="sm" 

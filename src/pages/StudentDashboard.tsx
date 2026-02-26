@@ -41,8 +41,8 @@ const StudentDashboard: React.FC = () => {
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight text-slate-900">Dashboard</h2>
-          <p className="text-slate-500">Welcome back, {user?.name}</p>
+          <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Dashboard</h2>
+          <p className="text-slate-500 dark:text-slate-400">Welcome back, {user?.name}</p>
         </div>
         <Link to="/student/new">
           <Button className="gap-2 shadow-lg shadow-blue-600/20">
@@ -55,40 +55,40 @@ const StudentDashboard: React.FC = () => {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Issues</CardTitle>
+            <CardTitle className="text-sm font-medium dark:text-slate-200">Active Issues</CardTitle>
             <AlertCircle className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.open}</div>
-            <p className="text-xs text-slate-500">Waiting for review</p>
+            <div className="text-2xl font-bold dark:text-white">{stats.open}</div>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Waiting for review</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">In Progress</CardTitle>
+            <CardTitle className="text-sm font-medium dark:text-slate-200">In Progress</CardTitle>
             <Clock className="h-4 w-4 text-amber-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.inProgress}</div>
-            <p className="text-xs text-slate-500">Being worked on</p>
+            <div className="text-2xl font-bold dark:text-white">{stats.inProgress}</div>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Being worked on</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Resolved</CardTitle>
+            <CardTitle className="text-sm font-medium dark:text-slate-200">Resolved</CardTitle>
             <CheckCircle className="h-4 w-4 text-emerald-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.resolved}</div>
-            <p className="text-xs text-slate-500">Successfully closed</p>
+            <div className="text-2xl font-bold dark:text-white">{stats.resolved}</div>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Successfully closed</p>
           </CardContent>
         </Card>
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-xl font-semibold text-slate-900">Recent Complaints</h3>
+        <h3 className="text-xl font-semibold text-slate-900 dark:text-white">Recent Complaints</h3>
         {complaints.length === 0 ? (
-          <Card className="p-8 text-center text-slate-500">
+          <Card className="p-8 text-center text-slate-500 dark:text-slate-400">
             No complaints found. Everything seems good!
           </Card>
         ) : (
@@ -105,11 +105,11 @@ const StudentDashboard: React.FC = () => {
                     <div className="flex flex-col md:flex-row justify-between gap-4">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <h4 className="font-semibold text-lg text-slate-900">{complaint.title}</h4>
+                          <h4 className="font-semibold text-lg text-slate-900 dark:text-white">{complaint.title}</h4>
                           <Badge variant={getStatusColor(complaint.status)}>{complaint.status}</Badge>
                         </div>
-                        <p className="text-slate-600">{complaint.description}</p>
-                        <div className="flex items-center gap-4 text-xs text-slate-400 mt-2">
+                        <p className="text-slate-600 dark:text-slate-400">{complaint.description}</p>
+                        <div className="flex items-center gap-4 text-xs text-slate-400 dark:text-slate-500 mt-2">
                           <span>{complaint.category}</span>
                           <span>•</span>
                           <span>{formatDistanceToNow(new Date(complaint.dateSubmitted))} ago</span>
@@ -122,9 +122,9 @@ const StudentDashboard: React.FC = () => {
                         </div>
                       </div>
                       {complaint.remarks && (
-                        <div className="md:w-1/3 bg-slate-50 p-3 rounded-lg border border-slate-100 text-sm">
-                          <p className="font-medium text-slate-700 mb-1">Staff Remarks:</p>
-                          <p className="text-slate-600">{complaint.remarks}</p>
+                        <div className="md:w-1/3 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800 text-sm">
+                          <p className="font-medium text-slate-700 dark:text-slate-300 mb-1">Staff Remarks:</p>
+                          <p className="text-slate-600 dark:text-slate-400">{complaint.remarks}</p>
                         </div>
                       )}
                     </div>

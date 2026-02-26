@@ -69,7 +69,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -81,8 +81,8 @@ const Login: React.FC = () => {
             <div className="mx-auto w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xl mb-2">
               AS
             </div>
-            <CardTitle className="text-2xl font-bold text-slate-900">ASTU Smart Complaint</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-2xl font-bold text-slate-900 dark:text-white">ASTU Smart Complaint</CardTitle>
+            <CardDescription className="dark:text-slate-400">
               {isLogin ? "Sign in to your account" : "Create a new account"}
             </CardDescription>
           </CardHeader>
@@ -99,19 +99,19 @@ const Login: React.FC = () => {
                     className="space-y-4"
                   >
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-slate-700">Full Name</label>
+                      <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Full Name</label>
                       <input 
                         type="text" 
                         required 
-                        className="w-full p-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                        className="w-full p-2 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-slate-700">Role</label>
+                      <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Role</label>
                       <select 
-                        className="w-full p-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full p-2 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         value={role}
                         onChange={(e) => setRole(e.target.value as any)}
                       >
@@ -125,29 +125,29 @@ const Login: React.FC = () => {
               </AnimatePresence>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Email</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email</label>
                 <input 
                   type="email" 
                   required 
-                  className="w-full p-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                  className="w-full p-2 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Password</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Password</label>
                 <input 
                   type="password" 
                   required 
-                  className="w-full p-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                  className="w-full p-2 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
 
-              {error && (
-                <div className={`p-3 rounded-lg flex items-center gap-2 text-sm ${error.includes('Check') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+               {error && (
+                <div className={`p-3 rounded-lg flex items-center gap-2 text-sm ${error.includes('Check') ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'}`}>
                   <AlertCircle className="h-4 w-4" />
                   {error}
                 </div>
@@ -163,9 +163,9 @@ const Login: React.FC = () => {
             </form>
           </CardContent>
 
-          <CardFooter className="bg-slate-50 border-t border-slate-100 p-4 flex justify-center text-sm">
+          <CardFooter className="bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 p-4 flex justify-center text-sm">
             <button 
-              className="text-blue-600 hover:underline font-medium"
+              className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
               onClick={() => setIsLogin(!isLogin)}
             >
               {isLogin ? "Don't have an account? Sign Up" : "Already have an account? Sign In"}

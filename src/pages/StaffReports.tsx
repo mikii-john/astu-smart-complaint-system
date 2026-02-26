@@ -45,8 +45,8 @@ const StaffReports: React.FC = () => {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900">Departmental Reports</h2>
-        <p className="text-slate-500">Analytics and insights for your department's complaints.</p>
+        <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Departmental Reports</h2>
+        <p className="text-slate-500 dark:text-slate-400">Analytics and insights for your department's complaints.</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
@@ -56,7 +56,7 @@ const StaffReports: React.FC = () => {
             <FileText className="h-4 w-4 text-slate-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalComplaints}</div>
+            <div className="text-2xl font-bold dark:text-white">{totalComplaints}</div>
           </CardContent>
         </Card>
         <Card>
@@ -65,7 +65,7 @@ const StaffReports: React.FC = () => {
             <CheckCircle className="h-4 w-4 text-emerald-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{resolutionRate}%</div>
+            <div className="text-2xl font-bold dark:text-white">{resolutionRate}%</div>
           </CardContent>
         </Card>
         <Card>
@@ -74,7 +74,7 @@ const StaffReports: React.FC = () => {
             <Clock className="h-4 w-4 text-amber-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{inProgressCount}</div>
+            <div className="text-2xl font-bold dark:text-white">{inProgressCount}</div>
           </CardContent>
         </Card>
         <Card>
@@ -83,7 +83,7 @@ const StaffReports: React.FC = () => {
             <AlertCircle className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{openCount}</div>
+            <div className="text-2xl font-bold dark:text-white">{openCount}</div>
           </CardContent>
         </Card>
       </div>
@@ -111,7 +111,12 @@ const StaffReports: React.FC = () => {
                   ))}
                 </Pie>
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                  contentStyle={{ 
+                    backgroundColor: 'var(--tooltip-bg, #fff)', 
+                    borderRadius: '8px', 
+                    border: '1px solid var(--tooltip-border, #e2e8f0)',
+                    color: 'var(--tooltip-text, #000)'
+                  }}
                 />
                 <Legend verticalAlign="bottom" height={36} />
               </PieChart>
@@ -131,8 +136,13 @@ const StaffReports: React.FC = () => {
                 <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }}
-                  cursor={{ fill: '#f1f5f9' }}
+                  contentStyle={{ 
+                    backgroundColor: 'var(--tooltip-bg, #fff)', 
+                    borderRadius: '8px', 
+                    border: '1px solid var(--tooltip-border, #e2e8f0)',
+                    color: 'var(--tooltip-text, #000)'
+                  }}
+                  cursor={{ fill: 'var(--chart-cursor, #f1f5f9)' }}
                 />
                 <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]}>
                   {categoryData.map((entry, index) => (

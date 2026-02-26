@@ -29,13 +29,13 @@ const ComplaintHistory: React.FC = () => {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900">Complaint History</h2>
-        <p className="text-slate-500">View and track all your previous submissions</p>
+        <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Complaint History</h2>
+        <p className="text-slate-500 dark:text-slate-400">View and track all your previous submissions</p>
       </div>
 
       <div className="space-y-4">
         {complaints.length === 0 ? (
-          <Card className="p-8 text-center text-slate-500">
+          <Card className="p-8 text-center text-slate-500 dark:text-slate-400">
             No complaints found in your history.
           </Card>
         ) : (
@@ -53,14 +53,14 @@ const ComplaintHistory: React.FC = () => {
                       <div className="space-y-1 flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <Badge variant={getStatusColor(complaint.status)}>{complaint.status}</Badge>
-                          <span className="text-xs text-slate-400">
+                          <span className="text-xs text-slate-400 dark:text-slate-500">
                             {formatDistanceToNow(new Date(complaint.dateSubmitted))} ago
                           </span>
                         </div>
-                        <h4 className="font-semibold text-lg text-slate-900">{complaint.title}</h4>
-                        <p className="text-slate-600 text-sm line-clamp-2">{complaint.description}</p>
-                        <div className="flex items-center gap-4 text-xs text-slate-400 mt-2">
-                          <span className="bg-slate-100 px-2 py-0.5 rounded text-slate-600">{complaint.category}</span>
+                        <h4 className="font-semibold text-lg text-slate-900 dark:text-white">{complaint.title}</h4>
+                        <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-2">{complaint.description}</p>
+                        <div className="flex items-center gap-4 text-xs text-slate-400 dark:text-slate-500 mt-2">
+                          <span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-600 dark:text-slate-400">{complaint.category}</span>
                           {complaint.assignedTo && (
                             <span>Assigned to: {complaint.assignedTo}</span>
                           )}
@@ -79,9 +79,9 @@ const ComplaintHistory: React.FC = () => {
                       </div>
                       
                       {complaint.remarks && (
-                        <div className="md:w-1/3 bg-blue-50/50 p-4 rounded-lg border border-blue-100 text-sm">
-                          <p className="font-semibold text-blue-900 mb-1">Official Resolution / Remarks:</p>
-                          <p className="text-blue-800 italic">"{complaint.remarks}"</p>
+                        <div className="md:w-1/3 bg-blue-50/50 dark:bg-blue-900/10 p-4 rounded-lg border border-blue-100 dark:border-blue-900/30 text-sm">
+                          <p className="font-semibold text-blue-900 dark:text-blue-400 mb-1">Official Resolution / Remarks:</p>
+                          <p className="text-blue-800 dark:text-blue-300 italic">"{complaint.remarks}"</p>
                         </div>
                       )}
                     </div>

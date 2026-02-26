@@ -1,1 +1,17 @@
 @import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+:root {
+  --tooltip-bg: #ffffff;
+  --tooltip-border: #e2e8f0;
+  --tooltip-text: #1e293b;
+  --chart-cursor: #f1f5f9;
+}
+
+.dark {
+  --tooltip-bg: #0f172a;
+  --tooltip-border: #1e293b;
+  --tooltip-text: #f1f5f9;
+  --chart-cursor: #1e293b;
+}

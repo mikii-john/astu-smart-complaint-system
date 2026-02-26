@@ -43,8 +43,8 @@ const NewComplaint: React.FC = () => {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900">Submit a Complaint</h2>
-        <p className="text-slate-500">Describe the issue you are facing.</p>
+        <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Submit a Complaint</h2>
+        <p className="text-slate-500 dark:text-slate-400">Describe the issue you are facing.</p>
       </div>
 
       <motion.div
@@ -60,7 +60,7 @@ const NewComplaint: React.FC = () => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 dark:text-slate-300">
                   Category
                 </label>
                 <Select
@@ -76,7 +76,7 @@ const NewComplaint: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 dark:text-slate-300">
                   Title
                 </label>
                 <Input
@@ -88,11 +88,11 @@ const NewComplaint: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 dark:text-slate-300">
                   Description
                 </label>
                 <textarea
-                  className="flex min-h-[120px] w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex min-h-[120px] w-full rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-2 text-sm ring-offset-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   placeholder="Describe the issue in detail..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
@@ -101,18 +101,18 @@ const NewComplaint: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 dark:text-slate-300">
                   Attachment (Optional)
                 </label>
                 <div className="flex items-center justify-center w-full">
                   {!file ? (
-                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-200 border-dashed rounded-lg cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors">
+                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-200 dark:border-slate-800 border-dashed rounded-lg cursor-pointer bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <Upload className="w-8 h-8 mb-3 text-slate-400" />
-                        <p className="mb-2 text-sm text-slate-500">
+                        <Upload className="w-8 h-8 mb-3 text-slate-400 dark:text-slate-600" />
+                        <p className="mb-2 text-sm text-slate-500 dark:text-slate-400">
                           <span className="font-semibold">Click to upload</span> or drag and drop
                         </p>
-                        <p className="text-xs text-slate-500">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-500">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
                       </div>
                       <input 
                         type="file" 
@@ -122,18 +122,18 @@ const NewComplaint: React.FC = () => {
                       />
                     </label>
                   ) : (
-                    <div className="flex items-center justify-between w-full p-4 border border-slate-200 rounded-lg bg-slate-50">
+                    <div className="flex items-center justify-between w-full p-4 border border-slate-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-900/50">
                       <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600">
                           <Upload className="w-5 h-5" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-slate-900 truncate max-w-[200px]">{file.name}</p>
-                          <p className="text-xs text-slate-500">{(file.size / 1024).toFixed(2)} KB</p>
+                          <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate max-w-[200px]">{file.name}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">{(file.size / 1024).toFixed(2)} KB</p>
                         </div>
                       </div>
                       <Button variant="ghost" size="icon" onClick={() => setFile(null)}>
-                        <X className="w-4 h-4 text-slate-500" />
+                        <X className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                       </Button>
                     </div>
                   )}

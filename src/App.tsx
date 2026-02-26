@@ -1,4 +1,5 @@
 import React from "react";
+import { ThemeProvider } from "@/context/ThemeContext";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import { useAuth } from "@/hooks/useAuth";
@@ -111,11 +112,14 @@ const AppRoutes: React.FC = () => {
 export default function App() {
   return (
     <Router>
-      <AuthProvider>
-        <ComplaintProvider>
-          <AppRoutes />
-        </ComplaintProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <ComplaintProvider>
+            <AppRoutes />
+          </ComplaintProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </Router>
   );
 }
+
