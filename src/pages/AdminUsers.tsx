@@ -8,6 +8,7 @@ interface UserProfile {
   full_name: string;
   email: string;
   role: string;
+  department?: string;
   created_at: string;
 }
 
@@ -37,7 +38,7 @@ const AdminUsers: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, full_name, email, role, created_at")
+        .select("id, full_name, email, role, department, created_at")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -151,6 +152,7 @@ const AdminUsers: React.FC = () => {
                     <th className="px-4 py-3 font-medium">Name</th>
                     <th className="px-4 py-3 font-medium">Email</th>
                     <th className="px-4 py-3 font-medium">Role</th>
+                    <th className="px-4 py-3 font-medium">Department</th>
                     <th className="px-4 py-3 font-medium">Joined</th>
                   </tr>
                 </thead>
@@ -172,6 +174,7 @@ const AdminUsers: React.FC = () => {
                           <span className="capitalize">{u.role}</span>
                         </span>
                       </td>
+                      <td className="px-4 py-3 text-slate-500">{u.department || "—"}</td>
                       <td className="px-4 py-3 text-slate-500">
                         {u.created_at
                           ? new Date(u.created_at).toLocaleDateString("en-US", {

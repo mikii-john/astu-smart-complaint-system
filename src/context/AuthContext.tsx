@@ -8,75 +8,88 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const isMounted = useRef(true);
-  const fetchingFor = useRef<string | null>(null);
+  const fetchPromise = useRef<Promise<void> | null>(null);
 
   const fetchProfile = async (userId: string, metadata?: any, emailAddr?: string) => {
-    if (fetchingFor.current === userId) {
-      console.log(`[Auth] Already fetching profile for ${userId}, waiting for completion...`);
-      // Just wait a bit and return, the other call will set the user state
-      return;
+    // If a fetch is already in progress, wait for it instead of starting a new one
+    if (fetchPromise.current) {
+      console.log(`[Auth] Fetch already in progress for ${userId}, waiting...`);
+      return fetchPromise.current;
     }
     
-    fetchingFor.current = userId;
-    try {
-      console.log(`[Auth] Fetching profile for ${userId}...`);
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
+    fetchPromise.current = (async () => {
+      try {
+        console.log(`[Auth] Fetching profile for ${userId}...`);
+        
+        // Add a local timeout for the fetch itself
+        const fetchTimeout = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error("Profile fetch timeout")), 10000)
+        );
 
-      if (error) {
-        if (error.code === "PGRST116") {
-          console.warn("[Auth] Profile not found. Attempting fallback creation...");
-          
-          // Use provided metadata or fallback to session data
-          let userMetadata = metadata;
-          let email = emailAddr || metadata?.email;
+        const fetchCall = supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", userId)
+          .single();
 
-          if (!userMetadata || !email) {
-            console.log("[Auth] Missing metadata for fallback, checking current session...");
-            const { data: { session } } = await supabase.auth.getSession();
-            userMetadata = userMetadata || session?.user?.user_metadata;
-            email = email || session?.user?.email;
-          }
-          
-          if (email && userMetadata) {
-            console.log("[Auth] Creating profile with metadata:", userMetadata.role);
-            const { data: newProfile, error: createError } = await supabase
-              .from("profiles")
-              .insert({
-                id: userId,
-                full_name: userMetadata.full_name || "New User",
-                email: email,
-                role: userMetadata.role || "student"
-              })
-              .select()
-              .single();
+        const { data, error } = await Promise.race([fetchCall, fetchTimeout]) as any;
+
+        if (error) {
+          if (error.code === "PGRST116") {
+            console.warn("[Auth] Profile not found. Attempting fallback creation...");
             
-            if (createError) throw createError;
+            let userMetadata = metadata;
+            let email = emailAddr || metadata?.email;
+
+            if (!userMetadata || !email) {
+              const { data: { session } } = await supabase.auth.getSession();
+              userMetadata = userMetadata || session?.user?.user_metadata;
+              email = email || session?.user?.email;
+            }
             
-            if (newProfile && isMounted.current) {
-              updateUserState(newProfile);
+            if (email && userMetadata) {
+              console.log("[Auth] Creating profile with metadata:", userMetadata.role);
+              const { data: newProfile, error: createError } = await supabase
+                .from("profiles")
+                .insert({
+                  id: userId,
+                  full_name: userMetadata.full_name || "New User",
+                  email: email,
+                  role: userMetadata.role || "student"
+                })
+                .select()
+                .single();
+              
+              if (createError) throw createError;
+              
+              if (newProfile && isMounted.current) {
+                updateUserState(newProfile);
+              }
+            } else {
+              console.error("[Auth] No metadata available for fallback profile creation.");
+              if (isMounted.current) setUser(null);
             }
           } else {
-            console.error("[Auth] No metadata available for fallback profile creation.");
-            setUser(null);
+            throw error;
           }
-        } else {
-          throw error;
+        } else if (data && isMounted.current) {
+          updateUserState(data);
         }
-      } else if (data && isMounted.current) {
-        updateUserState(data);
+      } catch (error: any) {
+        console.error("[Auth] Profile fetch error:", error.message);
+        if (isMounted.current && !user) {
+          // If we failed to get a profile and don't have one, we should probably stop loading
+          setLoading(false);
+        }
+      } finally {
+        fetchPromise.current = null;
+        if (isMounted.current) {
+          setLoading(false);
+        }
       }
-    } catch (error: any) {
-      console.error("[Auth] Profile fetch error:", error.message);
-    } finally {
-      fetchingFor.current = null;
-      if (isMounted.current) {
-        setLoading(false);
-      }
-    }
+    })();
+
+    return fetchPromise.current;
   };
 
   const updateUserState = (data: any) => {
