@@ -20,7 +20,7 @@ const Login: React.FC = () => {
 
   React.useEffect(() => {
     if (user) {
-      console.log(`[Login] User found (${user.role}), navigating...`);
+      console.log(`[Login] Redirecting user with role: ${user.role}`);
       if (user.role === "student") navigate("/student");
       else if (user.role === "staff") navigate("/staff");
       else if (user.role === "admin") navigate("/admin");

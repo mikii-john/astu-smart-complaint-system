@@ -8,11 +8,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const isMounted = useRef(true);
+  const fetchingFor = useRef<string | null>(null);
 
-  const fetchProfile = async (userId: string, metadata?: any) => {
+  const fetchProfile = async (userId: string, metadata?: any, emailAddr?: string) => {
+    if (fetchingFor.current === userId) {
+      console.log(`[Auth] Already fetching profile for ${userId}, waiting for completion...`);
+      // Just wait a bit and return, the other call will set the user state
+      return;
+    }
+    
+    fetchingFor.current = userId;
     try {
       console.log(`[Auth] Fetching profile for ${userId}...`);
-      let { data, error } = await supabase
+      const { data, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", userId)
@@ -22,48 +30,64 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (error.code === "PGRST116") {
           console.warn("[Auth] Profile not found. Attempting fallback creation...");
           
-          const { data: { user: authUser } } = await supabase.auth.getUser();
-          const userMetadata = metadata || authUser?.user_metadata;
+          // Use provided metadata or fallback to session data
+          let userMetadata = metadata;
+          let email = emailAddr || metadata?.email;
+
+          if (!userMetadata || !email) {
+            console.log("[Auth] Missing metadata for fallback, checking current session...");
+            const { data: { session } } = await supabase.auth.getSession();
+            userMetadata = userMetadata || session?.user?.user_metadata;
+            email = email || session?.user?.email;
+          }
           
-          if (authUser && userMetadata) {
+          if (email && userMetadata) {
+            console.log("[Auth] Creating profile with metadata:", userMetadata.role);
             const { data: newProfile, error: createError } = await supabase
               .from("profiles")
               .insert({
                 id: userId,
                 full_name: userMetadata.full_name || "New User",
-                email: authUser.email,
+                email: email,
                 role: userMetadata.role || "student"
               })
               .select()
               .single();
             
             if (createError) throw createError;
-            data = newProfile;
+            
+            if (newProfile && isMounted.current) {
+              updateUserState(newProfile);
+            }
           } else {
             console.error("[Auth] No metadata available for fallback profile creation.");
             setUser(null);
-            return;
           }
         } else {
           throw error;
         }
-      }
-      
-      if (data && isMounted.current) {
-        console.log("[Auth] Profile found:", data.role);
-        setUser({
-          id: data.id,
-          name: data.full_name,
-          email: data.email,
-          role: data.role as Role,
-          department: data.department,
-        });
+      } else if (data && isMounted.current) {
+        updateUserState(data);
       }
     } catch (error: any) {
       console.error("[Auth] Profile fetch error:", error.message);
     } finally {
-      if (isMounted.current) setLoading(false);
+      fetchingFor.current = null;
+      if (isMounted.current) {
+        setLoading(false);
+      }
     }
+  };
+
+  const updateUserState = (data: any) => {
+    console.log("[Auth] Updating user state:", data.role);
+    setUser({
+      id: data.id,
+      name: data.full_name,
+      email: data.email,
+      role: data.role as Role,
+      department: data.department,
+    });
   };
 
   useEffect(() => {
@@ -79,7 +103,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (isMounted.current) {
           if (session) {
             console.log("[Auth] Initial session found");
-            await fetchProfile(session.user.id);
+            await fetchProfile(session.user.id, session.user.user_metadata, session.user.email);
           } else {
             console.log("[Auth] No initial session");
             setUser(null);
@@ -99,7 +123,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log("[Auth] State change event:", event);
 
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || (event === 'INITIAL_SESSION' && session)) {
-        if (session) await fetchProfile(session.user.id);
+        if (session) await fetchProfile(session.user.id, session.user.user_metadata, session.user.email);
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
         setLoading(false);
@@ -127,7 +151,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (response.error) throw response.error;
       
       if (response.data.user) {
-        await fetchProfile(response.data.user.id, response.data.user.user_metadata);
+        await fetchProfile(response.data.user.id, response.data.user.user_metadata, response.data.user.email);
       }
       return response;
     } catch (error) {
